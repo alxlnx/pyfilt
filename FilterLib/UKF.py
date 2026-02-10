@@ -174,12 +174,6 @@ class UKF(Kalman):
         #защита от пвоторного использования update() и predict()
         self.predict_stage : bool = True
 
-        # self.set_all(P=P, f=f, Q=Q, B=B, u=u, h=h, R=R, x0=x0, m=m, dt=dt,
-        #            alpha=alpha, beta=beta, kappa=kappa,
-        #             residual_x=residual_x, residual_h=residual_h,
-        #             mean_x=mean_x, mean_z=mean_z)
-
-
         if P  is not None: self.P = P
         if f  is not None: self.f = f
         else :
@@ -342,8 +336,6 @@ class UKF(Kalman):
 
         # y = m - nu
         self.y = self.residual_h(self.z, self.nu)
-        #self.r = self.h(self.z) - self.h(self.nu)
-        #self.r = np.array((self.r[0], self.r[3], self.r[6]))
         self.r = self.y
 
         # K = (∑(Wc * (Y - x) * (Z - nu).T)) * Pz^(-1)

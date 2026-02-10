@@ -1,0 +1,20 @@
+[+] Разобраться в коде фильтров (чтобы написать по аналогии)
+[+] Повторить процедуру предсказания в EKF, надо для статей
+[+] Designing Kalman filters прочитать (гл. 8)
+[+] MMAE прочитать (adaptive filering, гл. 14)
+
+[+] Verify that the tree is being managed correctly by running it with identical models.
+See if likelihoods, estimates, covariances stay the same through out all hypotheses.
+Try debugging the code with step-by-step execution (move the code to a python file first?).
+
+[] Pick a more realistic trajectory which will fully employ radar measurements (in radar coordinate system)
+[] Write better docs for EKF, make sure all variables and methods are understood. See Rlabbe lib. 
+
+[+] Deep copies where?
+[] Write some tests (asserts), look up regression tests and unit tests.
+Tip: when you find an error, make a test which will cover it.
+
+[] Как считать правдоподобия? 
+Неужели там действительно нет mixing initial conditions как в IMM?
+[] Пописать докуменатцию, чтобы лучше понять, что происходит.
+ 

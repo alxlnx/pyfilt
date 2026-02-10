@@ -175,7 +175,7 @@ class IMM(sw.Switch):
         for i in range(len(self.filters)): 
             if self.likelihood[i] <= 0: zero += 1
         if zero == len(self.filters): self.likelihood = np.ones(len(self.filters))
-        #print('likelyhood', self.likelihood)
+        #print('likelihood', self.likelihood)
 
         # update mode probabilities from total probability * likelihood
         self.mu = self.cbar * self.likelihood

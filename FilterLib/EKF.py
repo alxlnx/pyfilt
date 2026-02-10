@@ -11,21 +11,18 @@ from FilterLib.Kalman import Kalman
 
 class EKF(Kalman):
     '''
-        Рассширенный фильтр Калмана
-    
-        Parameters
-        ----------
-        dim_x : int - количество переменных состояния 
-        dim_m : int - количество переменных измерения
+    Расширенный фильтр Калмана (но линейный в predict()!)
+    Attributes:
+        dim_x (int) : количество переменных состояния 
+        dim_m (int) : количество переменных измерения
         
-        
-        P : np.array(float, ndmin=2) - матрица ковариации текущего состояния
-        F : np.array(float, ndmin=2) - функция перехода состояния (Xn = F*X)
-        Q : np.array(float, ndmin=2) - ковариационная матрица шума процесса (переходная ковариация)
-        B : np.array(float, ndmin=2) - control function (dx = B*u)
-        u : np.array(float, ndmin=1) - control input
-        H : np.array(float, ndmin=2) - матрица измерения (y = z - H*x, y - невязка, z - измерение, x - априорное состояние)                      
-        h : function                 - функция измерения
+        P (np.array(float, ndmin=2)) : матрица ковариации текущего состояния
+        F (np.array(float, ndmin=2)) : функция перехода состояния (Xn = F*X)
+        Q (np.array(float, ndmin=2)) : ковариационная матрица шума процесса (переходная ковариация)
+        B (np.array(float, ndmin=2)) : control function (dx = B*u)
+        u (np.array(float, ndmin=1)) : control input
+        H (np.array(float, ndmin=2)) : матрица измерения (y = z - H*x, y - невязка, z - измерение, x - априорное состояние)                      
+        h (function)                 : функция измерения
         R : np.array(float, ndmin=2) - матрица коварации для шума измерений                                  
         S : np.array(float, ndmin=2) - system uncertainty (общий шум)
         K : np.array(float, ndmin=2) - kalman gain, содержит значения от 0 до 1        
@@ -35,7 +32,7 @@ class EKF(Kalman):
         z : np.array(float, ndmin=1) - данные о текущем измерении, dim=(x, 1)
         m : np.array(float, ndmin=2) - значения измерений,         dim=(m, 1)
         
-        prior       : np.array(float, ndmin=2) - значения предсказаний,  dim=(x, 1)ArithmeticError
+        prior       : np.array(float, ndmin=2) - значения предсказаний,  dim=(x, 1)
         posterior   : np.array(float, ndmin=2) - значения фильтра, dim=(x, 1)
         P_prior     : np.array(float, ndmin=3) - значения предсказанной ковариационной матрицы,   dim=(x, x)
         P_posterior : np.array(float, ndmin=3) - значения отфильтрованной ковариационной матрицы, dim=(x, x)
@@ -50,14 +47,14 @@ class EKF(Kalman):
         dt          : float - шаг времени
         dt_arr      : np.array(float, ndmin=1) - массив времени, если None, то всегда используется dt
         
-        HJacobian   : function - якобиан
+        HJacobian   : function - якобиан функции измерения h
         residual_h  : function - функции разности векторов
 
         predict_stage : bool - защита от пвоторного использования update() и predict()
         multi_update  : bool - игнорирует защиту от повторого использования
-        
-        Methods
-        -------
+
+    -----------------------    
+    Methods:
         add_measurement   - добавление измернеия
         predict           - этап предсказания
         update            - этап обновления
@@ -104,7 +101,7 @@ class EKF(Kalman):
         # H - матрица измерения (y = z - H*x, y - невязка, z - измерение, x - априорное состояние)     
         self.H : np.array(float, ndmin=2) = np.zeros((dim_m, dim_x))
         # h - функция измерения                 
-        self.h = None #function
+        self.h = None # function
         # R - матрица коварации для шума измерений                                  
         self.R : np.array(float, ndmin=2) = np.eye(dim_m)
         # S - system uncertainty 
@@ -160,9 +157,6 @@ class EKF(Kalman):
         #игнорирует защиту от повторого использования
         self.multi_update  : bool = False
 
-        # self.set_all(P=P, F=F, Q=Q, B=B, u=u, h=h, R=R, x0=x0, m=m, dt=dt,
-        #             HJacobian=HJacobian, residual_h=residual_h)
-        
         if P  is not None: self.P = P
         if F  is not None: self.F = F
         if Q  is not None: self.Q = Q
@@ -231,27 +225,24 @@ class EKF(Kalman):
         
     def update(self, args_j=(), args_h=()):
         '''
-        Этап обновления
-        
+        Этап обновления    
+        H = HJacobian(x) = dh/dx(x)   
         S = H*P_prior*H^T + R     
         K = P_prior*H^T*S^(-1)    
-        y = m - H*X_prior   
-        X_post = X_prior + K * y    
+        y = m - h(X_prior)    
+        X_post = X_prior + K * y     
         P_post = (I - K*H) * P_prior     
         
         Также вычисляются и сохраняются такие параметры, как невязка и функция правдоподобия
 
-        Parameters
-        ----------
-        args_j : arguments, optional
-            аргументы функции HJacobian.
-        args_h : arguments, optional
-            аргументы функции residual_h.
+        Attributes:
+            args_j (arguments, optional) :
+                аргументы функции HJacobian.
+            args_h (arguments, optional) :
+                аргументы функции residual_h.
 
-        Returns
-        -------
-        None.
-
+        Returns:
+            None
         '''
         if self.predict_stage == True and self.multi_update == False:
             print("Error! Double call of update!")
@@ -280,7 +271,6 @@ class EKF(Kalman):
 
         # y = m - H*X_prior        
         self.y = self.residual_h(self.z, self.h(self.x, *args_h))
-        # self.r = np.array((self.h(self.z)[0], self.h(self.z)[3], self.h(self.z)[6])) - np.array((self.x[0], self.x[3], self.x[6]))
         self.r = self.y
 
         # X_post = X_prior + K * y         
@@ -289,7 +279,7 @@ class EKF(Kalman):
         # P_post = (I - K*H) * P_prior     
         self.P = self.P - self.K @ self.H @ self.P
         
-        self._count_parameters()
+        # self._count_parameters()
         
         self.n += 1
         

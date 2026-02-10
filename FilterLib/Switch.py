@@ -112,7 +112,7 @@ class Switch():
             self.filters[i].predict(*args_pred_ar)
             self.filters[i].update(*args_upd_ar)
              
-            
+        c = None
         for i in range(self.filters):
             if self.filters[i].epsilon(self.filters[i].P, self.filters[i].H, self.filters[i].R) < self.eps_max:
                 c = i
